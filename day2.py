@@ -1,9 +1,10 @@
 import os
 from openai import OpenAI
 
-key=1
+api_key = "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"
+
 # Initialize the OpenAI client
-client = OpenAI(key)
+client = OpenAI(api_key=api_key)
 
 # Optional: Test the connection
 try:
