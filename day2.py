@@ -1,7 +1,7 @@
 import os
 from openai import OpenAI
 
-api_key ="abc"
+api_key =api_key
 # Initialize the OpenAI client
 client = OpenAI(api_key=api_key)
 
