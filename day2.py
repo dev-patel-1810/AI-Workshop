@@ -1,8 +1,7 @@
 import os
 from openai import OpenAI
 
-api_key = "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"
-
+api_key = "gpt=https://platform.openai.com/api-keys  gemini=https://aistudio.google.com/apikey"
 # Initialize the OpenAI client
 client = OpenAI(api_key=api_key)
 
