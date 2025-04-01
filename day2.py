@@ -1,9 +1,9 @@
 import os
 from openai import OpenAI
 
-api_key =api_key
+key=1
 # Initialize the OpenAI client
-client = OpenAI(api_key=api_key)
+client = OpenAI(key)
 
 # Optional: Test the connection
 try:
