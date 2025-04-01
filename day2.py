@@ -1,7 +1,7 @@
 import os
 from openai import OpenAI
 
-api_key = "gpt=https://platform.openai.com/api-keys  gemini=https://aistudio.google.com/apikey"
+api_key ="abc"
 # Initialize the OpenAI client
 client = OpenAI(api_key=api_key)
 
