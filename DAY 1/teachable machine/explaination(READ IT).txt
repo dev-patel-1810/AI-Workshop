@@ -1,0 +1,5 @@
+for this to work go to cmd (from here only (right click)) and write
+python -m http.server 8000
+it will write one line then open the new tab in chrome and write
+localhost 8000 
+open site it will show all the small files and open the one to use(html)

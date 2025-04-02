@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teachable Machine - Local Model</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&family=Roboto:wght@300;500;700&display=swap');
+
+        body {
+            font-family: 'Raleway', sans-serif;
+            background: linear-gradient(135deg, #3a1c71, #ff7e5f, #feb47b, #6a11cb, #2575fc, #7f00ff, #2b5876, #4e4376);
+            color: #fff;
+            text-align: center;
+            padding: 10px;
+            margin: 0;
+            overflow-x: hidden;
+            animation: gradient-bg 14s ease infinite;
+            background-size: 800% 800%;
+        }
+
+        @keyframes gradient-bg {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 100% 50%; }
+        }
+
+        h1 {
+            font-family: 'Roboto', sans-serif;
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
+        }
+
+        p {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        #webcam-container {
+            margin: 10px auto;
+            width: 320px;
+            height: 320px;
+            border: 3px solid #fff;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            animation: fade-in 1s ease-in-out;
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        button {
+            background: linear-gradient(135deg, #f39c12, #e74c3c);
+            color: #fff;
+            font-size: 1.1em;
+            font-weight: 600;
+            padding: 12px 35px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+            transition: all 0.4s ease;
+            margin-bottom: 15px;
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #e67e22, #c0392b);
+            transform: scale(1.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        #label-container {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 1em;
+            font-weight: 500;
+        }
+
+        #label-container div {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            margin: 8px auto;
+            width: 80%;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+            animation: fade-in 0.8s ease;
+        }
+
+        footer {
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        footer a {
+            color: #f39c12;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+            color: #ffcc00;
+        }
+    </style>
+
+    <!-- Load TensorFlow.js & Teachable Machine Image (Replace with correct file paths) -->
+    <script src="tfjs@latest.js"></script>
+    <script src="teachablemachine-image.min.js"></script>
+
+</head>
+
+<body>
+    <h1>Teachable Machine - Local Model</h1>
+    <p>Click below to start the AI-powered webcam model.</p>
+    <button id="start-button" onclick="init()">Start Webcam</button>
+    <div id="webcam-container"></div>
+    <div id="label-container"></div>
+
+    <footer>
+        Created using <a href="https://teachablemachine.withgoogle.com/" target="_blank">Teachable Machine</a> and TensorFlow.js.
+    </footer>
+
+    <script>
+        // Update these paths if hosting files on a different server
+        const modelURL = "http://localhost:8000/model.json";
+        const metadataURL = "http://localhost:8000/metadata.json";
+
+        let model, webcam, labelContainer, maxPredictions;
+
+        async function init() {
+            if (typeof tmImage === "undefined") {
+                alert("Error: tmImage is not defined! Check the script path.");
+                return;
+            }
+
+            try {
+                console.log("Loading model...");
+                model = await tmImage.load(modelURL, metadataURL);
+                console.log("Model loaded successfully!");
+
+                maxPredictions = model.getTotalClasses();
+
+                console.log("Setting up the webcam...");
+                const flip = true;
+                webcam = new tmImage.Webcam(320, 320, flip);
+
+                await webcam.setup();
+                console.log("Webcam setup successful!");
+
+                await webcam.play();
+                window.requestAnimationFrame(loop);
+
+                document.getElementById("webcam-container").appendChild(webcam.canvas);
+
+                labelContainer = document.getElementById("label-container");
+                labelContainer.innerHTML = "";
+
+                for (let i = 0; i < maxPredictions; i++) {
+                    const div = document.createElement("div");
+                    div.innerHTML = "Loading...";
+                    labelContainer.appendChild(div);
+                }
+
+            } catch (error) {
+                console.error("Error initializing the model or webcam:", error);
+                alert("Error: " + error.message);
+            }
+        }
+
+        async function loop() {
+            webcam.update();
+            await predict();
+            window.requestAnimationFrame(loop);
+        }
+
+        async function predict() {
+            const prediction = await model.predict(webcam.canvas);
+            for (let i = 0; i < maxPredictions; i++) {
+                labelContainer.childNodes[i].innerHTML = `${prediction[i].className}: ${(prediction[i].probability * 100).toFixed(2)}%`;
+            }
+        }
+    </script>
+
+</body>
+
+</html>
